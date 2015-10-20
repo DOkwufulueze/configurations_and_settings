@@ -1,0 +1,33 @@
+install redis-server
+  sudo add-apt-repository ppa:chris-lea/redis-server
+  sudo apt-get update
+  sudo apt-get install redis-server
+
+add to gemfile
+  gem 'redis-rails'
+  gem 'split', require: 'split/dashboard'
+
+add to config/routes.rb
+  mount Split::Dashboard, at: 'split'
+
+add to config/application.rb, within AppName::Application
+  config.cache_store = :redis_store, 'redis://localhost:6379/0/cache', { expires_in: 90.minutes }
+
+add to config/environments/development.rb
+  config.cache_store = :redis_store, "redis://localhost:6379/1/ns"
+  config.action_controller.perform_caching = true
+
+add to config/initializers/split.rb
+  Split.configure do |config|
+    config.allow_multiple_experiments = true 
+    # add other configurations
+  end
+
+
+
+Start the redis server before using split appending & to make it run at the background
+  redis-server &
+
+
+
+  
