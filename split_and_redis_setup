@@ -50,6 +50,24 @@ add to config/environments/development.rb
   config.cache_store = :redis_store, "redis://localhost:6379/1/ns"
   config.action_controller.perform_caching = true
 
+add to config/split.yml
+  development: localhost:6379
+  test: localhost:6379
+  staging: redis1.example.com:6379
+  fi: localhost:6379
+  production: redis1.example.com:6379
+
+add to config/initializers/split.rb
+  Split.configure do |config|
+    config.ignore_ip_addresses << '81.19.48.130' # optional ip address
+  end
+
+add to config/initializers/split
+  rails_root = ENV['RAILS_ROOT'] || File.dirname(__FILE__) + '/../..'
+  rails_env = ENV['RAILS_ENV'] || 'development'
+
+  split_config = YAML.load_file(rails_root + '/config/split.yml')
+  Split.redis = split_config[rails_env]
 
 
 
