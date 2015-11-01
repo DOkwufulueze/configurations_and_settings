@@ -25,7 +25,7 @@ add to config/initializers/split.rb
 
 
 
-Start the redis server before using split appending & to make it run at the background
+Start the redis server before using split. Optionally append & to make it run at the background
   redis-server &
 
 
