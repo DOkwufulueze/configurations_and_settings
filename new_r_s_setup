@@ -1,0 +1,59 @@
+install redis-server
+  sudo add-apt-repository ppa:chris-lea/redis-server
+  sudo apt-get update
+  sudo apt-get install redis-server
+
+add to gemfile
+  gem 'redis-rails'
+  gem 'split', require: 'split/dashboard'
+
+add to config/routes.rb
+  Rails.application.routes do
+    mount Split::Dashboard, at: 'split'
+  end
+
+add to config/application.rb, within AppName::Application #not needed
+  config.cache_store = :redis_store, 'redis://localhost:6379/0/cache', { expires_in: 90.minutes }
+
+add to config/environments/development.rb #not needed
+  config.cache_store = :redis_store, "redis://localhost:6379/1/ns"
+  config.action_controller.perform_caching = true
+
+add to config/redis.yml
+  development:
+    host: localhost
+    port: 6379
+  test:
+    host: localhost
+    port: 6379
+  production:
+    host: redis-production
+    port: 6379
+  # add more environments as you wish
+
+add to config/initializers/redis.rb # Optional
+  $redis = Redis.new(:host => 'localhost', :port => 6379)
+  $redis.client.reconnect
+
+add to config/split.yml
+  development: localhost:6379
+  test: localhost:6379
+  staging: redis1.example.com:6379
+  fi: localhost:6379
+  production: redis1.example.com:6379
+  # add more environments as you wish
+
+add to config/initializers/split.rb
+  rails_root = ENV['RAILS_ROOT'] || File.dirname(__FILE__) + '/../..'
+  rails_env = ENV['RAILS_ENV'] || 'development'
+  split_config = YAML.load_file(rails_root + '/config/split.yml')
+  Split.redis = split_config[rails_env]
+
+
+
+Start the redis server before using split. Optionally append & to make it run at the background
+  redis-server &
+
+
+
+  
